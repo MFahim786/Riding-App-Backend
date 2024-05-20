@@ -7,6 +7,8 @@ router.post('/register', passengerController.registerPassenger);
 
 router.post('/login', passengerController.loginPassenger);
 
+
+
 router.get('/profile', authMiddleware,passengerController.getPassengerProfile);
 
 router.put('/profile', passengerController.updatePassengerProfile);
