@@ -10,7 +10,7 @@ import rateLimit from 'express-rate-limit';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
 import compression from 'compression';
-import passengerRoutes from './passenger/route.js';
+import passengerRoutes from './passenger/route.js'; 
 import driverRoutes from './driver/route.js';
 import { authPassenger } from './middleware/authMiddleware.js';
 import { connectDB } from './utils/mongoDB.js';
