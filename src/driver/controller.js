@@ -57,7 +57,7 @@ class DriverController {
 
   async getDriverProfile(req, res) {
     try {
-      const driver = await Driver.findById(req.user.id).select('-password');
+      const driver = await Driver.findById(req.userId).select('-password');
       if (!driver) {
         return sendErrorResponse(res, NOT_FOUND, 'Driver not found');
       }
@@ -72,7 +72,7 @@ class DriverController {
     const updates = req.body;
 
     try {
-      const driver = await Driver.findByIdAndUpdate(req.user.id, updates, { new: true }).select('-password');
+      const driver = await Driver.findByIdAndUpdate(req.userId, updates, { new: true }).select('-password');
       if (!driver) {
         return sendErrorResponse(res, NOT_FOUND, 'Driver not found');
       }

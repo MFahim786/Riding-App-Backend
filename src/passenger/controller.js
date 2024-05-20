@@ -65,7 +65,7 @@ class PassengerController {
 
   async getPassengerProfile(req, res) {
     try {
-      const passenger = await Passenger.findById(req.user.id).select('-password');
+      const passenger = await Passenger.findById(req.userId).select('-password');
       if (!passenger) {
         return sendErrorResponse(res, NOT_FOUND, 'Passenger not found');
       }
@@ -80,7 +80,7 @@ class PassengerController {
     const updates = req.body;
 
     try {
-      const passenger = await Passenger.findByIdAndUpdate(req.user.id, updates, { new: true }).select('-password');
+      const passenger = await Passenger.findByIdAndUpdate(req.userId, updates, { new: true }).select('-password');
       if (!passenger) {
         return sendErrorResponse(res, NOT_FOUND, 'Passenger not found');
       }

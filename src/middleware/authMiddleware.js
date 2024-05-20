@@ -3,7 +3,7 @@ import { HTTP_STATUS, sendErrorResponse } from '../utils/responseUtils.js';
 
 const { UNAUTHORIZED, INTERNAL_SERVER_ERROR } = HTTP_STATUS;
 
-const authPassenger = async (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   const authHeader = req.header('Authorization');
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -22,4 +22,4 @@ const authPassenger = async (req, res, next) => {
   }
 };
 
-export  {authPassenger};
+export  {authMiddleware};
