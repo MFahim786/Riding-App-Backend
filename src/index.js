@@ -53,7 +53,9 @@ if (process.env.NODE_ENV === 'development') {
 
 app.use('/api/v1/passenger', passengerRoutes);
 app.use('/api/v1/driver', driverRoutes);
-
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
 // Protect routes that require authentication
 // app.use('/api/passenger/profile', passengerRoutes);
 io.on('connection', async (socket) => {
