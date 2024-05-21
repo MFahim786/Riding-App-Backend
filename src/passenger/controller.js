@@ -19,7 +19,6 @@ class PassengerController {
         ...req.body,
         password: hashedPassword
       };
-  
       const passenger = new Passenger(passengerData);
       const savedPassenger = await passenger.save();
   

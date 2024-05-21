@@ -12,7 +12,7 @@ import xss from 'xss-clean';
 import compression from 'compression';
 import passengerRoutes from './passenger/route.js'; 
 import driverRoutes from './driver/route.js';
-import { authPassenger } from './middleware/authMiddleware.js';
+// import { authPassenger } from './middleware/authMiddleware.js';
 import { connectDB } from './utils/mongoDB.js';
 import http from "http"
 dotenv.config();
@@ -55,7 +55,7 @@ app.use('/api/v1/passenger', passengerRoutes);
 app.use('/api/v1/driver', driverRoutes);
 
 // Protect routes that require authentication
-app.use('/api/passenger/profile', authPassenger);
+// app.use('/api/passenger/profile', passengerRoutes);
 io.on('connection', async (socket) => {
     console.log('A passenger connected');
     

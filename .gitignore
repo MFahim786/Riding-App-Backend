@@ -1,65 +1,65 @@
-# # Node modules
-# node_modules/
+# Node modules
+node_modules/
 
-# # Environment variables
-# .env
+# Environment variables
+.env
 
-# # Logs
-# logs/
-# *.log
-# npm-debug.log*
-# yarn-debug.log*
-# yarn-error.log*
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# # OS-generated files
-# .DS_Store
-# Thumbs.db
+# OS-generated files
+.DS_Store
+Thumbs.db
 
-# # Editor directories and files
-# .vscode/
-# .idea/
-# *.swp
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
 
-# # Dependency directories
-# node_modules/
-# jspm_packages/
+# Dependency directories
+node_modules/
+jspm_packages/
 
-# # Optional npm cache directory
-# .npm
+# Optional npm cache directory
+.npm
 
-# # Optional eslint cache
-# .eslintcache
+# Optional eslint cache
+.eslintcache
 
-# # Coverage directory
-# coverage/
+# Coverage directory
+coverage/
 
-# # Output directories
-# /dist
-# /build
+# Output directories
+/dist
+/build
 
-# # Lock files
-# package-lock.json
-# yarn.lock
+# Lock files
+package-lock.json
+yarn.lock
 
-# # Miscellaneous
-# *.tgz
-# *.zip
-# *.out
-# *.map
+# Miscellaneous
+*.tgz
+*.zip
+*.out
+*.map
 
-# # Operating system specific files
-# *.DS_Store
-# .DS_Store?
-# ._*
-# .Spotlight-V100
-# .Trashes
-# *.swp
-# ._.DS_Store
-# *.swo
-# */.local
-# */.env
+# Operating system specific files
+*.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+*.swp
+._.DS_Store
+*.swo
+*/.local
+*/.env
 
-# # Other files
-# debug/
-# temp/
-# temp/**
+# Other files
+debug/
+temp/
+temp/**

@@ -1,5 +1,6 @@
 import express from 'express';
 import driverController from './controller.js';
+// import { authMiddleware } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
