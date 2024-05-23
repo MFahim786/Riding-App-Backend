@@ -12,6 +12,7 @@ import xss from 'xss-clean';
 import compression from 'compression';
 import passengerRoutes from './passenger/route.js'; 
 import driverRoutes from './driver/route.js';
+import vehicleRoutes from './vehicle/route.js';
 // import { authPassenger } from './middleware/authMiddleware.js';
 import { connectDB } from './utils/mongoDB.js';
 import http from "http"
@@ -53,6 +54,7 @@ if (process.env.NODE_ENV === 'development') {
 
 app.use('/api/v1/passenger', passengerRoutes);
 app.use('/api/v1/driver', driverRoutes);
+app.use('/api/v1/vehicles', vehicleRoutes);
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });

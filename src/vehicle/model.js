@@ -1,4 +1,4 @@
-import mongoose  from 'mongoose'
+import mongoose from 'mongoose';
 
 const vehicleSchema = new mongoose.Schema({
   driver: {
@@ -6,9 +6,8 @@ const vehicleSchema = new mongoose.Schema({
     ref: 'Driver',
     required: true
   },
-  make: {
+  vehicleImage: {
     type: String,
-    required: true
   },
   model: {
     type: String,
@@ -18,7 +17,7 @@ const vehicleSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  licensePlate: {
+  numberPlate: {
     type: String,
     required: true,
     unique: true
@@ -26,11 +25,19 @@ const vehicleSchema = new mongoose.Schema({
   color: {
     type: String,
     required: true
+  },
+  type: {
+    type: String,
+    // enum: ['Car', 'Bike', 'Truck', 'Van', 'Other'],
+    required: true
   }
+
 }, {
   timestamps: true
 });
 
+vehicleSchema.index({ currentLocation: '2dsphere' });
+
 const Vehicle = mongoose.model('Vehicle', vehicleSchema);
 
-module.exports = Vehicle;
+export default Vehicle;

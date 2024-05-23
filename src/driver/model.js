@@ -29,11 +29,10 @@ const driverSchema = new mongoose.Schema({
       required: true
     }
   },
-  vehicle: {
+  vehicle: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Vehicle',
-    required: true
-  },
+  }],
   rating: {
     type: Number,
     default: 5.0
@@ -51,22 +50,11 @@ const driverSchema = new mongoose.Schema({
     type: String, // Assuming the image URL or path is stored as a string
     required: true
   },
-  vehicleType: {
-    type: String,
-    required: true
-  },
+
    identityCardNumber:{
     type: String,
     required: true,
-   },
-  vehicleModel: {
-    type: String,
-    required: true
-  },
-  numberPlate: {
-    type: String,
-    required: true
-  }
+   }
 }, {
   timestamps: true
 });
