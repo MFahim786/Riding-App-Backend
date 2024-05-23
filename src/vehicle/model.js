@@ -20,7 +20,6 @@ const vehicleSchema = new mongoose.Schema({
   numberPlate: {
     type: String,
     required: true,
-    unique: true
   },
   color: {
     type: String,
