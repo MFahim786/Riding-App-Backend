@@ -5,6 +5,6 @@ const vehicleValidationSchema = Joi.object({
   make: Joi.string().required(),
   model: Joi.string().required(),
   year: Joi.number().integer().min(1886).required(),
-  licensePlate: Joi.string().required(),
+  // licensePlate: Joi.string().required(),
   color: Joi.string().required()
 });
