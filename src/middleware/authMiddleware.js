@@ -1,25 +1,24 @@
 import jwt from 'jsonwebtoken';
-import { HTTP_STATUS, sendErrorResponse } from '../utils/responseUtils.js';
+import User from '../user/model.js';
+import { sendErrorResponse, HTTP_STATUS } from '../utils/responseUtils.js';
 
-const { UNAUTHORIZED, INTERNAL_SERVER_ERROR } = HTTP_STATUS;
+const { UNAUTHORIZED } = HTTP_STATUS;
 
-const authMiddleware = async (req, res, next) => {
-  const authHeader = req.header('Authorization');
+const authUser = async (req, res, next) => {
+  const token = req.header('Authorization').replace('Bearer ', '');
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  if (!token) {
     return sendErrorResponse(res, UNAUTHORIZED, 'No token, authorization denied');
   }
 
-  const token = authHeader.replace('Bearer ', '');
-
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded._id;
- 
+    req.userId = decoded.id;
+    req.userRole = decoded.role;
     next();
   } catch (error) {
     return sendErrorResponse(res, UNAUTHORIZED, 'Token is not valid', error.message);
   }
 };
 
-export  {authMiddleware};
+export default { authUser };

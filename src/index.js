@@ -12,6 +12,7 @@ import xss from 'xss-clean';
 import compression from 'compression';
 import passengerRoutes from './passenger/route.js'; 
 import driverRoutes from './driver/route.js';
+import userRoutes from './user/route.js';
 import vehicleRoutes from './vehicle/route.js';
 // import { authPassenger } from './middleware/authMiddleware.js';
 import { connectDB } from './utils/mongoDB.js';
@@ -24,8 +25,32 @@ const app = express();
 app.use(helmet());
 connectDB()
 // Enable CORS
-app.use(cors());
-const server = http.createServer(app);
+const whitelist = ["http://localhost:3000",'https://dev-kyoopay-be.rtdemo.com','http://localhost:3001','https://dev-kyoopay-admin.rtdemo.com'];
+const corsOptions = {
+  "/": {
+    origin: ["http://localhost:3001", "http://localhost:3000"], // Allowed origins for the /user route
+    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+  },
+  origin: function (origin, callback) {
+    if (!origin || whitelist.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+
+const server = http.createServer(app,{
+  cors: {
+      origin: ['http://localhost:3000','http://localhost:3001'],
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      credentials: true
+  }
+});
 const io = new Server(server);
 // Limit requests from same API
 const limiter = rateLimit({
@@ -52,8 +77,9 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-app.use('/api/v1/passenger', passengerRoutes);
-app.use('/api/v1/driver', driverRoutes);
+// app.use('/api/v1/passenger', passengerRoutes);
+// app.use('/api/v1/driver', driverRoutes);
+app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/vehicles', vehicleRoutes);
 app.get('/health', (req, res) => {
   res.status(200).send('OK');

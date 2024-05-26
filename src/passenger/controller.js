@@ -56,7 +56,7 @@ class PassengerController {
 
       const token = jwt.sign({ id: passenger._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-      return sendSuccessResponse(res, OK, 'Login successful', { token });
+      return sendSuccessResponse(res, OK, 'Login successful', {data: passenger, token });
     } catch (error) {
       return sendErrorResponse(res, INTERNAL_SERVER_ERROR, 'Error logging in', error.message);
     }
