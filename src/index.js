@@ -12,7 +12,6 @@ import xss from 'xss-clean';
 import compression from 'compression';
 import passengerRoutes from './passenger/route.js'; 
 import driverRoutes from './driver/route.js';
-import userRoutes from './user/route.js';
 import vehicleRoutes from './vehicle/route.js';
 // import { authPassenger } from './middleware/authMiddleware.js';
 import { connectDB } from './utils/mongoDB.js';
@@ -77,39 +76,104 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// app.use('/api/v1/passenger', passengerRoutes);
-// app.use('/api/v1/driver', driverRoutes);
-app.use('/api/v1/user', userRoutes);
+app.use('/api/v1/passenger', passengerRoutes);
+app.use('/api/v1/driver', driverRoutes);
 app.use('/api/v1/vehicles', vehicleRoutes);
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 // Protect routes that require authentication
 // app.use('/api/passenger/profile', passengerRoutes);
-io.on('connection', async (socket) => {
-    console.log('A passenger connected');
-    
-    // Fetch nearby drivers and emit them to the passenger
-    try {
-      const nearbyDrivers = await Driver.find({
-        location: {
-          $near: {
-            $geometry: {
-              type: 'Point',
-              coordinates: [passengerLocation] // Replace with passenger's location
-            },
-            $maxDistance: radius * 1000 // Convert radius from kilometers to meters
-          }
+const drivers = {};
+const passengers = {};
+
+// Socket.io implementation
+io.on('connection', (socket) => {
+  console.log('A user connected');
+
+  socket.on('registerDriver', (driverId) => {
+    drivers[driverId] = socket;
+  });
+
+  socket.on('registerPassenger', (passengerId) => {
+    passengers[passengerId] = socket;
+  });
+
+  socket.on('rideRequest', async ({ passengerId, pickupLocation, dropoffLocation, fare }) => {
+    const newRide = new Ride({
+      passenger: passengerId,
+      pickupLocation,
+      dropoffLocation,
+      fare,
+      status: 'requested',
+    });
+
+    const savedRide = await newRide.save();
+
+    const nearbyDrivers = await Driver.find({
+      location: {
+        $near: {
+          $geometry: {
+            type: 'Point',
+            coordinates: pickupLocation.coordinates,
+          },
+          $maxDistance: 10000, // 10 km radius
         },
-        availability: true
-      });
-  
-      socket.emit('nearbyDrivers', nearbyDrivers);
-    } catch (error) {
-      console.error('Error fetching nearby drivers:', error);
+      },
+      availability: true,
+    });
+
+    nearbyDrivers.forEach((driver) => {
+      if (drivers[driver._id]) {
+        drivers[driver._id].emit('rideRequest', savedRide);
+      }
+    });
+
+    passengers[passengerId].emit('rideRequested', savedRide);
+  });
+
+  socket.on('acceptRide', async ({ rideId, driverId }) => {
+    const ride = await Ride.findById(rideId);
+    if (ride) {
+      ride.status = 'accepted';
+      ride.driver = driverId;
+      const updatedRide = await ride.save();
+
+      if (passengers[ride.passenger]) {
+        passengers[ride.passenger].emit('driverAccepted', updatedRide);
+      }
     }
   });
-// Error handling middleware
+
+  socket.on('confirmRide', async ({ rideId, driverId }) => {
+    const ride = await Ride.findById(rideId);
+    if (ride) {
+      ride.status = 'confirmed';
+      ride.driver = driverId;
+      const updatedRide = await ride.save();
+
+      if (drivers[driverId]) {
+        drivers[driverId].emit('rideConfirmed', updatedRide);
+      }
+    }
+  });
+
+  socket.on('cancelRide', async ({ rideId }) => {
+    const ride = await Ride.findById(rideId);
+    if (ride) {
+      ride.status = 'cancelled';
+      const updatedRide = await ride.save();
+
+      if (passengers[ride.passenger]) {
+        passengers[ride.passenger].emit('rideCancelled', updatedRide);
+      }
+    }
+  });
+
+  socket.on('disconnect', () => {
+    console.log('A user disconnected');
+  });
+});
 app.use((err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
