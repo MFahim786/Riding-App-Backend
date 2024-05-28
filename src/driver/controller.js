@@ -34,37 +34,67 @@ class DriverController {
   }
 
 
+  // async loginDriver(req, res) {
+  //   const { email, password } = req.body;
+
+  //   try {
+  //     let user = {}
+  //     if (email) {
+  //       user = await Driver.findOne({ email });
+
+  //     }
+
+  //       if (!user) {
+
+  //         user = await Passenger.findOne({ email });
+  //       }
+
+  //     // if (user) {
+  //     //   return sendErrorResponse(res, NOT_FOUND, 'Not found');
+  //     // }
+  //     console.log('passenger', user);
+  //     const isMatch = await bcrypt.compare(password, user.password);
+  //     if (!isMatch) {
+  //       return sendErrorResponse(res, BAD_REQUEST, 'Invalid credentials');
+  //     }
+
+  //     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+
+  //     return sendSuccessResponse(res, OK, 'Login successful', { data: user, token });
+  //   } catch (error) {
+  //     return sendErrorResponse(res, INTERNAL_SERVER_ERROR, 'Error logging in', error.message);
+  //   }
+  // }
+
+
+
   async loginDriver(req, res) {
     const { email, password } = req.body;
 
     try {
-      let user = {}
-      if (email) {
-        user = await Driver.findOne({ email });
-
+      let user = await Driver.findOne({ email });
+      if (!user) {
+        user = await Passenger.findOne({ email });
       }
-   
-        if (!user) {
-
-          user = await Passenger.findOne({ email });
-        }
       
-      // if (user) {
-      //   return sendErrorResponse(res, NOT_FOUND, 'Not found');
-      // }
-      console.log('passenger', user);
+      if (!user) {
+        return sendErrorResponse(res, 404, 'User not found');
+      }
+
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-        return sendErrorResponse(res, BAD_REQUEST, 'Invalid credentials');
+        return sendErrorResponse(res, 400, 'Invalid credentials');
       }
 
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-      return sendSuccessResponse(res, OK, 'Login successful', { data: user, token });
+      return sendSuccessResponse(res, 200, 'Login successful', { data: user, token });
     } catch (error) {
-      return sendErrorResponse(res, INTERNAL_SERVER_ERROR, 'Error logging in', error.message);
+      return sendErrorResponse(res, 500, 'Error logging in', error.message);
     }
   }
+
+
 
   async getDriverProfile(req, res) {
     try {
