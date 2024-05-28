@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import Driver from './model.js';
 import { sendSuccessResponse, sendErrorResponse, HTTP_STATUS } from '../utils/responseUtils.js';
+import Passenger from '../passenger/model.js';
 
 const { OK, CREATED, BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND } = HTTP_STATUS;
 
@@ -37,9 +38,17 @@ class DriverController {
     const { email, password } = req.body;
 
     try {
-      const driver = await Driver.findOne({ email });
-      if (!driver) {
-        return sendErrorResponse(res, NOT_FOUND, 'Driver not found');
+      let user={}
+      if (email) {
+        user = await Driver.findOne({ email });
+        
+      }
+      else{
+
+        user = await Passenger.findOne({ email });
+      }
+      if (!driver && !passenger) {
+        return sendErrorResponse(res, NOT_FOUND, 'Not found');
       }
 
       const isMatch = await bcrypt.compare(password, driver.password);
@@ -49,7 +58,7 @@ class DriverController {
 
       const token = jwt.sign({ id: driver._id }, process.env.JWT_SECRET);
 
-      return sendSuccessResponse(res, OK, 'Login successful', { token });
+      return sendSuccessResponse(res, OK, 'Login successful', {data: user, token });
     } catch (error) {
       return sendErrorResponse(res, INTERNAL_SERVER_ERROR, 'Error logging in', error.message);
     }

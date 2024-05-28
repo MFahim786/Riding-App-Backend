@@ -5,6 +5,12 @@ const driverSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  type:{
+    type: String,
+    required: true,
+    enum: ['driver', 'passenger'],
+    default: 'driver'
+  },
   email: {
     type: String,
     required: true,
