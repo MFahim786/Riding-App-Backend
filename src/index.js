@@ -229,7 +229,7 @@ const initializeSocketIO = (io) => {
   return io.on('connection', async (socket) => {
     try {
       const authToken = socket.handshake.headers?.authorization;
-      const decodedToken = await jwt.verify(authToken, process.env.JWT_SECRET);
+      const decodedToken = await jwt.verify(authToken, 'myverysecuresecret');
       console.log(decodedToken)
       const userId = decodedToken.id.toString();
       socket.join(userId);
