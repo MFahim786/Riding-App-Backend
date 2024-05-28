@@ -51,12 +51,12 @@ class DriverController {
         return sendErrorResponse(res, NOT_FOUND, 'Not found');
       }
 
-      const isMatch = await bcrypt.compare(password, driver.password);
+      const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return sendErrorResponse(res, BAD_REQUEST, 'Invalid credentials');
       }
 
-      const token = jwt.sign({ id: driver._id }, process.env.JWT_SECRET);
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
       return sendSuccessResponse(res, OK, 'Login successful', {data: user, token });
     } catch (error) {
