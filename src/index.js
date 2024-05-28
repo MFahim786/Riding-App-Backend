@@ -152,17 +152,57 @@ const handleRideRequest = async (socket, data) => {
   emitSocketEvent(data?.passengerId, 'rideRequested', savedRide);
 };
 
-const handleAcceptRide = async (socket, { rideId, driverId }) => {
-  const ride = await Ride.findById(rideId);
-  if (ride) {
+const handleAcceptRide = async (socket, {rideId, driverId}) => {
+  try {
+    const ride = await Ride.findById(rideId);
+    if (!ride) {
+      throw new Error('Ride not found');
+    }
+
+    // Retrieve driver information
+    const driver = await Driver.findById(driverId).select('name rating driverImage');
+    if (!driver) {
+      throw new Error('Driver not found');
+    }
+
+    // Retrieve vehicle information
+    const vehicle = await Vehicle.findOne({ driver: driverId }).select('name numberPlate vehicleImage');
+    if (!vehicle) {
+      throw new Error('Vehicle not found');
+    }
+
+    // Update ride status and driver
     ride.status = 'accepted';
     ride.driver = driverId;
     const updatedRide = await ride.save();
-    console.log('Updated ride',ride.passenger)
-    emitSocketEvent(ride.passenger, 'rideAccepted', updatedRide);
-    emitSocketEvent(driverId, 'rideAccepted', updatedRide);
+
+    // Add driver and vehicle information to the updated ride object
+    const rideWithDetails = {
+      ...updatedRide.toObject(),
+      driver: {
+        _id: driver._id,
+        name: driver.name,
+        rating: driver.rating,
+        driverImage: driver.driverImage,
+      },
+      vehicle: {
+        name: vehicle.name,
+        numberPlate: vehicle.numberPlate,
+        vehicleImage: vehicle.vehicleImage,
+      },
+    };
+
+    console.log('Updated ride:', rideWithDetails);
+
+    // Notify the passenger and driver
+    emitSocketEvent(ride.passenger.toString(), 'rideAccepted', rideWithDetails);
+    emitSocketEvent(driverId, 'rideAccepted', rideWithDetails);
+
+  } catch (error) {
+    console.error('Error accepting ride:', error.message);
   }
 };
+
 
 const handleConfirmRide = async (socket, { rideId, driverId }) => {
   const ride = await Ride.findById(rideId);
