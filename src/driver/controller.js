@@ -10,47 +10,49 @@ class DriverController {
   async registerDriver(req, res) {
     try {
       const { email, password } = req.body;
-  
+
       const existingDriver = await Driver.findOne({ email });
       if (existingDriver) {
         return sendErrorResponse(res, BAD_REQUEST, 'Driver already exists');
       }
-  
+
       const hashedPassword = await bcrypt.hash(password, 10);
-  
+
       const driverData = {
         ...req.body,
         password: hashedPassword
       };
-  
+
       const driver = new Driver(driverData);
-  
+
       const savedDriver = await driver.save();
-  
+
       return sendSuccessResponse(res, CREATED, 'Driver registered successfully', savedDriver);
     } catch (error) {
       return sendErrorResponse(res, INTERNAL_SERVER_ERROR, 'Error registering driver', error.message);
     }
   }
-  
+
 
   async loginDriver(req, res) {
     const { email, password } = req.body;
 
     try {
-      let user={}
+      let user = {}
       if (email) {
         user = await Driver.findOne({ email });
-        
-      }
-      else{
 
-        user = await Passenger.findOne({ email });
       }
-      if (user) {
-        return sendErrorResponse(res, NOT_FOUND, 'Not found');
-      }
+      else {
+        if (!user) {
 
+          user = await Passenger.findOne({ email });
+        }
+      }
+      // if (user) {
+      //   return sendErrorResponse(res, NOT_FOUND, 'Not found');
+      // }
+      console.log('passenger', user);
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return sendErrorResponse(res, BAD_REQUEST, 'Invalid credentials');
@@ -58,7 +60,7 @@ class DriverController {
 
       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
-      return sendSuccessResponse(res, OK, 'Login successful', {data: user, token });
+      return sendSuccessResponse(res, OK, 'Login successful', { data: user, token });
     } catch (error) {
       return sendErrorResponse(res, INTERNAL_SERVER_ERROR, 'Error logging in', error.message);
     }
