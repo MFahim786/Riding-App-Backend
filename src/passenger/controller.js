@@ -54,7 +54,7 @@ class PassengerController {
         return sendErrorResponse(res, BAD_REQUEST, 'Invalid credentials');
       }
 
-      const token = jwt.sign({ id: passenger._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      const token = jwt.sign({ id: passenger._id }, process.env.JWT_SECRET);
 
       return sendSuccessResponse(res, OK, 'Login successful', {data: passenger, token });
     } catch (error) {

@@ -9,6 +9,7 @@ import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
+import jwt from 'jsonwebtoken';
 import compression from 'compression';
 import passengerRoutes from './passenger/route.js';
 import driverRoutes from './driver/route.js';
@@ -114,38 +115,41 @@ const passengers = {};
 
 const emitSocketEvent = (userId, event, payload) => {
   console.log('Emitting event:', event, 'to user:', userId, 'with payload:', payload);
-  io.to(userId).emit(event, payload);
+  io.to(userId.toString()).emit(event, payload);
 };
 
-const handleRideRequest = async (socket, { passengerId, pickupLocation, dropoffLocation, fare }) => {
+const handleRideRequest = async (socket, data) => {
+  console.log('handleRideRequest',data)
+  // console.log('passengerId', passengerId, pickupLocation, dropoffLocation, fare)
   const newRide = new Ride({
-    passenger: passengerId,
-    pickupLocation,
-    dropoffLocation,
-    fare,
+    passenger: data?.passengerId,
+    pickupLocation:data?.pickupLocation,
+    dropoffLocation:data?.dropoffLocation,
+    fare:data?.fare,
     status: 'requested',
   });
 
   const savedRide = await newRide.save();
 
   const nearbyDrivers = await Driver.find({
-    location: {
-      $near: {
-        $geometry: {
-          type: 'Point',
-          coordinates: pickupLocation.coordinates,
-        },
-        $maxDistance: 10000, // 10 km radius
-      },
-    },
-    availability: true,
+    // location: {
+    //   $near: {
+    //     $geometry: {
+    //       type: 'Point',
+    //       coordinates: pickupLocation.coordinates,
+    //     },
+    //     $maxDistance: 10000, // 10 km radius
+    //   },
+    // },
+    // availability: true,
   });
 
   nearbyDrivers.forEach((driver) => {
+    console.log('driver: ' + driver._id)
       emitSocketEvent(driver._id, 'rideRequest', savedRide);
   });
 
-  emitSocketEvent(passengerId, 'rideRequested', savedRide);
+  emitSocketEvent(data?.passengerId, 'rideRequested', savedRide);
 };
 
 const handleAcceptRide = async (socket, { rideId, driverId }) => {
@@ -154,6 +158,7 @@ const handleAcceptRide = async (socket, { rideId, driverId }) => {
     ride.status = 'accepted';
     ride.driver = driverId;
     const updatedRide = await ride.save();
+    console.log('Updated ride',ride.passenger)
     emitSocketEvent(ride.passenger, 'rideAccepted', updatedRide);
     emitSocketEvent(driverId, 'rideAccepted', updatedRide);
   }
@@ -165,6 +170,7 @@ const handleConfirmRide = async (socket, { rideId, driverId }) => {
     ride.status = 'completed';
     ride.driver = driverId;
     const updatedRide = await ride.save();
+    console.log('Updated ride',ride.passenger)
     emitSocketEvent(ride.passenger, 'rideCompleted', updatedRide);
     emitSocketEvent(driverId, 'rideCompleted', updatedRide);
   }
@@ -183,10 +189,11 @@ const initializeSocketIO = (io) => {
   return io.on('connection', async (socket) => {
     try {
       const authToken = socket.handshake.headers?.authorization;
-      const decodedToken = await jwt.verify(authToken, process.env.TOKEN_SECRET);
-      const userId = decodedToken._id.toString();
+      const decodedToken = await jwt.verify(authToken, process.env.JWT_SECRET);
+      console.log(decodedToken)
+      const userId = decodedToken.id.toString();
       socket.join(userId);
-
+console.log('userId>>>>>>>>',userId)
       console.log('A user connected:', userId);
       socket.emit('connection', 'Connected successfully');
 
@@ -198,7 +205,12 @@ const initializeSocketIO = (io) => {
       //   registerPassenger(socket, passengerId);
       // });
 
-      socket.on('rideRequest', (data) => handleRideRequest(socket, data));
+      socket.on('rideRequest', (data) => {
+        data={...data,passengerId:userId};
+
+        console.log('>>>>',data)
+        handleRideRequest(socket, data)
+      });
       socket.on('acceptRide', (data) => handleAcceptRide(socket, data));
       socket.on('confirmRide', (data) => handleConfirmRide(socket, data));
       socket.on('cancelRide', (data) => handleCancelRide(socket, data));
