@@ -43,12 +43,12 @@ class DriverController {
         user = await Driver.findOne({ email });
 
       }
-      else {
+   
         if (!user) {
 
           user = await Passenger.findOne({ email });
         }
-      }
+      
       // if (user) {
       //   return sendErrorResponse(res, NOT_FOUND, 'Not found');
       // }
