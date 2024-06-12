@@ -1,0 +1,5 @@
+RUN apt-get update
+RUN apt-get install -y curl
+RUN curl -sL https://deb.nodesource.com/setup_16.x -o /tmp/nodesource_setup.sh
+RUN apt-get upgrade
+RUN apt-get install -y nodejs

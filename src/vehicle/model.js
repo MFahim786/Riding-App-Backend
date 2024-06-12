@@ -6,6 +6,12 @@ const vehicleSchema = new mongoose.Schema({
     ref: 'Driver',
     required: true
   },
+  name:{
+    type: String,
+    required: true,
+    unique: true,
+  default:'Cultus'
+  },
   vehicleImage: {
     type: String,
   },

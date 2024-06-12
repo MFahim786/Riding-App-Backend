@@ -1,4 +1,4 @@
-import FeedbackRating from '../models/feedbackRatingModel.js';
+import FeedbackRating from './model.js';
 import { sendSuccessResponse, sendErrorResponse, HTTP_STATUS } from '../utils/responseUtils.js';
 
 const { OK, CREATED, BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND } = HTTP_STATUS;

@@ -41,6 +41,10 @@ const passengerSchema = new mongoose.Schema({
   wallet: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Wallet'
+  },
+  rating:{
+    type: Number,
+    default: 5.0
   }
 }, {
   timestamps: true
