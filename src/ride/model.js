@@ -33,6 +33,10 @@ const rideSchema = new mongoose.Schema({
       required: true
     }
   },
+  distance:{
+    type: String,
+    required: true
+  },
   status: {
     type: String,
     enum: ['requested', 'accepted', 'in-progress', 'completed', 'cancelled'],
@@ -41,6 +45,17 @@ const rideSchema = new mongoose.Schema({
   fare: {
     type: Number,
     required: true
+  },
+  rating: {
+    type: Number,
+    min: 1,
+    max: 5,
+  },
+  onHoldBalance:{
+    type: Number,
+  },
+  feedback: {
+    type: String,
   },
   paymentStatus: {
     type: String,

@@ -75,7 +75,7 @@ if (process.env.NODE_ENV === 'development') {
 
 app.use('/api/v1/passenger', passengerRoutes);
 app.use('/api/v1/driver', driverRoutes);
-app.use('/api/v1/driver', driverRoutes);
+app.use('/api/v1/vehicles', vehicleRoutes);
 app.use('/api/v1/feedback', feedbackRatingRoutes);
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
@@ -133,7 +133,7 @@ const handleRideRequest = async (socket, data) => {
     // Reverse the coordinates (from [lat, lng] to [lng, lat])
     const reversedPickupCoordinates = [data.pickupLocation.coordinates[1], data.pickupLocation.coordinates[0]];
     const reversedDropoffCoordinates = [data.dropoffLocation.coordinates[1], data.dropoffLocation.coordinates[0]];
-
+    const fee = data?.fare * 0.10;
     // Step 1: Create a new ride
     const newRide = new Ride({
       passenger: data?.passengerId,
@@ -145,8 +145,11 @@ const handleRideRequest = async (socket, data) => {
         type: 'Point',
         coordinates: reversedDropoffCoordinates,
       },
+      distance: data.distance,
+      
       fare: data?.fare,
       status: 'requested',
+      onHoldBalance:fee
     });
 
     const savedRide = await newRide.save();
@@ -237,6 +240,9 @@ const completeRide = async (socket, data) => {
       throw new Error('Ride not found');
     }
     ride.status='completed'
+    const driver = await Driver.findById(ride.driver);
+    driver.wallet -= ride.onHoldBalance;
+    driver.save();
     ride.save();
     emitSocketEvent(ride?.passenger, 'completeRide', {status:"completeRide"});
 
@@ -314,7 +320,9 @@ const handleCancelRide = async (socket, { rideId }) => {
   if (ride) {
     ride.status = 'cancelled';
     const updatedRide = await ride.save();
-    emitSocketEvent(ride.passenger, 'rideCancelled', updatedRide);
+    console.log('cancelled >>>>>>>>>>>>>',ride)
+    emitSocketEvent(ride.passenger, 'cancelRide', updatedRide);
+    emitSocketEvent(ride.driver, 'cancelRide', updatedRide);
   }
 };
 

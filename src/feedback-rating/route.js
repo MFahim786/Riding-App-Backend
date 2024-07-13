@@ -4,6 +4,7 @@ import FeedbackRatingController from './controller.js';
 const router = express.Router();
 
 router.post('/', FeedbackRatingController.submitFeedbackRating);
+router.get('/:driverId', FeedbackRatingController.getRideDetails);
 
 // router.post('/login', FeedbackRatingController.loginPassenger);
 

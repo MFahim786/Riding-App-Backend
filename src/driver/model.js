@@ -9,7 +9,7 @@ const driverSchema = new mongoose.Schema({
     type: String,
     required: true,
     enum: ['driver', 'passenger'],
-    default: 'driver'
+    // default: 'driver'
   },
   email: {
     type: String,
@@ -49,8 +49,7 @@ const driverSchema = new mongoose.Schema({
     default: 'available'
   },
   wallet: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Wallet'
+   type: String,
   },
   driverImage: {
     type: String, // Assuming the image URL or path is stored as a string

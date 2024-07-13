@@ -74,7 +74,8 @@ class DriverController {
     try {
       let user = await Driver.findOne({ email });
       if (!user) {
-        user = await Passenger.findOne({ email });
+        user = await Passenger.findOne({ email }).populate('wallet');
+        console.log('User  found',user)
       }
       
       if (!user) {
@@ -82,7 +83,9 @@ class DriverController {
       }
 
       const isMatch = await bcrypt.compare(password, user.password);
+      console.log(password,user.password,"password")
       if (!isMatch) {
+        
         return sendErrorResponse(res, 400, 'Invalid credentials');
       }
 
