@@ -30,10 +30,10 @@ const app = express();
 app.use(helmet());
 connectDB()
 // Enable CORS
-const whitelist = ['https://ride-deploy.vercel.app', "http://localhost:3000", 'https://my-uber-app.vercel.app', 'http://localhost:3001', 'https://dev-kyoopay-admin.rtdemo.com'];
+const whitelist = ['https://ride-deploy.vercel.app', "http://51.20.248.6", 'https://my-uber-app.vercel.app', 'http://localhost:3001', 'https://dev-kyoopay-admin.rtdemo.com'];
 const corsOptions = {
   "/": {
-    origin: ["https://ride-deploy.vercel.app", "http://localhost:3000", 'https://riding-app-backend.vercel.app', 'https://my-uber-app.vercel.app'], // Allowed origins for the /user route
+    origin: ["https://ride-deploy.vercel.app", "http://51.20.248.6", 'https://riding-app-backend.vercel.app', 'https://my-uber-app.vercel.app'], // Allowed origins for the /user route
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
   },
   origin: function (origin, callback) {
@@ -98,7 +98,7 @@ const server = app.listen(PORT, () => console.log(`Server running on port ${PORT
 
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:3001', 'http://localhost:3000', 'https://0a8c-39-45-24-33.ngrok-free.app', 'https://ride-deploy.vercel.app', 'https://my-uber-app.vercel.app'],
+    origin: ['http://localhost:3001', 'http://51.20.248.6', 'https://0a8c-39-45-24-33.ngrok-free.app', 'https://ride-deploy.vercel.app', 'https://my-uber-app.vercel.app'],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
